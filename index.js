@@ -24,12 +24,11 @@ if (process.env.NODE_ENV != "production") {
     app.use("/bundle.js", (req, res) => res.sendFile(`${__dirname}/bundle.js`));
 }
 
-app.use((req, res, next) => {
+app.use(async (req, res, next) => {
     if (req.session.userId) {
-        return db.readUser(req.session.userId).then((user) => {
-            req.user = user;
-            return next();
-        });
+        const user = await db.readUser(req.session.userId);
+        req.user = user;
+        return next();
     } else {
         return next();
     }
@@ -39,25 +38,28 @@ app.get("*", function (req, res) {
     res.sendFile(__dirname + "/index.html");
 });
 
-app.post("/api/register-user", (req, resp) => {
+app.post("/api/register-user", async (req, resp) => {
     const { firstName, lastName, email, password } = req.body;
     const passwordHash = bcrypt.hash(password);
-    db.createuser({ firstName, lastName, email, passwordHash }).then((user) =>
-        resp.json(user)
-    );
+    const user = await db.createuser({
+        firstName,
+        lastName,
+        email,
+        passwordHash,
+    });
+    return resp.json(user);
 });
 
-app.post("/api/login", (req, resp) => {
+app.post("/api/login", async (req, resp) => {
     const { email, password } = req.body;
-    db.readByEmail(email).then((user) => {
-        if (user && bcrypt.compare(password, user.passwordHash)) {
-            req.session.userId = user.id;
-            return resp.json(user);
-        } else {
-            resp.statusMessage = `user with email ${email} does not exist or password doesn't match`;
-            return resp.status(404);
-        }
-    });
+    const user = await db.readByEmail(email);
+    if (user && bcrypt.compare(password, user.passwordHash)) {
+        req.session.userId = user.id;
+        return resp.json(user);
+    } else {
+        resp.statusMessage = `user with email ${email} does not exist or password doesn't match`;
+        return resp.status(404);
+    }
 });
 
 app.listen(8080, function () {

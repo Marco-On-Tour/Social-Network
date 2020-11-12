@@ -13,33 +13,33 @@ function mapRowToUser(row, mapHash = false) {
 
 /** @returns {Promise<{id:int, firstName:string, lastName:string, email:string, passwordHash?: string}>} */
 exports.createuser = (user) => {
-    return db
-        .query(
-            `INSERT INTO users (first_name, last_name, email, password_hash) 
-                     VALUES ($1,$2,$3,$4) returning id, first_name, last_name, email, password_hash;`,
-            [user.firstName, user.lastName, user.email, user.password_hash]
-        )
-        .then((result) => {
-            return mapRowToUser(result.rows[0]);
-        });
+    const result = db.query(
+        `INSERT INTO users (first_name, last_name, email, password_hash) 
+         VALUES ($1,$2,$3,$4) 
+         returning id, first_name, last_name, email, password_hash;`,
+        [user.firstName, user.lastName, user.email, user.password_hash]
+    );
+    return mapRowToUser(result.rows[0]);
 };
 
 /** @returns {Promise<{id:int, firstName:string, lastName:string, email:string, passwordHash?: string}>} */
-exports.readByEmail = (email) =>
-    db.query("SELECT * FROM users WHERE email = $1", [email]).then((result) => {
-        if (result.rows.length === 1) {
-            return mapRowToUser(result.rows[0], true);
-        } else {
-            return null;
-        }
-    });
+exports.readByEmail = async (email) => {
+    const result = db.query("SELECT * FROM users WHERE email = $1", [email]);
+    if (result.rows.length === 1) {
+        return mapRowToUser(result.rows[0], true);
+    } else {
+        return null;
+    }
+};
 
 /** @returns {Promise<{id:int, firstName:string, lastName:string, email:string, passwordHash?: string}>} */
-exports.readUser = (userId) =>
-    db.query("SELECT * FROM users WHERE id = $1;", [userId]).then((result) => {
-        if (result.rows.length === 1) {
-            return mapRowToUser(result.rows[0], true);
-        } else {
-            return null;
-        }
-    });
+exports.readUser = async (userId) => {
+    const result = await db.query("SELECT * FROM users WHERE id = $1;", [
+        userId,
+    ]);
+    if (result.rows.length === 1) {
+        return mapRowToUser(result.rows[0], true);
+    } else {
+        return null;
+    }
+};

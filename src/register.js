@@ -12,7 +12,7 @@ export default class Register extends React.Component {
             [event.target.name]: event.target.value,
         });
     }
-    submit(event) {
+    async submit(event) {
         if (
             !this.state.firstName ||
             !this.state.lastName ||
@@ -22,20 +22,18 @@ export default class Register extends React.Component {
             return this.setState({ error: true });
         } else {
             console.log("everything clean!");
-            return axios
-                .post("/api/register", {
+            try {
+                const response = await axios.post("/api/register", {
                     firstName: this.state.firstName,
                     lastName: this.state.lastName,
                     email: this.state.email,
                     password: this.state.password,
-                })
-                .then((response) => {
-                    location.replace("/");
-                })
-                .catch((error) => {
-                    console.log("error registering user", error);
-                    this.setState({ error: true });
                 });
+                location.replace("/");
+            } catch (error) {
+                console.log("error registering user", error);
+                this.setState({ error: true });
+            }
         }
     }
     render() {
