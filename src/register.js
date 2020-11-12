@@ -1,6 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
+
 export default class Register extends React.Component {
     constructor() {
         super();
@@ -41,39 +42,37 @@ export default class Register extends React.Component {
         return (
             <div id="Register">
                 <h2>Please register</h2>
-
                 {this.state.error && (
                     <div className="error">Something went wrong.</div>
                 )}
-                <label for="firstname">First Name</label>
                 <input
                     name="firstname"
                     type="text"
+                    placeholder="First Name"
                     onChange={(event) => this.handleChange(event)}
                 />
                 <br />
-                <label for="lastName">Last Name</label>
                 <input
                     name="lastname"
                     type="text"
+                    placeholder="Last Name"
                     onChange={(event) => this.handleChange(event)}
                 />
                 <br />
-                <label for="email">Email</label>
                 <input
                     name="email"
                     type="email"
+                    placeholder="Email"
                     onChange={(event) => this.handleChange(event)}
                 />
                 <br />
-                <label for="password">Password</label>
                 <input
                     name="password"
                     type="password"
+                    placeholder="Password"
                     onChange={(event) => this.handleChange(event)}
                 />
                 <br />
-
                 <button
                     id="register-button"
                     onClick={(event) => this.submit(event)}
