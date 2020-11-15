@@ -81,6 +81,10 @@ export default class Register extends React.Component {
                 >
                     Register
                 </button>
+                <br />
+                <p>Already a member? 
+                    <a href="#login" onClick={() => this.setState({route:"login"})}>Login</a>
+                </p>
             </div>
         );
     }
