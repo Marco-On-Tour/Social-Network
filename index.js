@@ -5,7 +5,7 @@ const bcrypt = require("./server/bcrypt");
 const { decodeBase64 } = require("bcryptjs");
 const db = require("./server/db");
 const cookieSession = require("cookie-session");
-
+const bodyParser = require("body-parser");
 app.use(compression());
 app.use(
     cookieSession({
@@ -23,6 +23,8 @@ if (process.env.NODE_ENV != "production") {
 } else {
     app.use("/bundle.js", (req, res) => res.sendFile(`${__dirname}/bundle.js`));
 }
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json());
 
 app.use(async (req, res, next) => {
     if (req.session.userId) {
@@ -34,20 +36,22 @@ app.use(async (req, res, next) => {
     }
 });
 
-app.get("*", function (req, res) {
-    res.sendFile(__dirname + "/index.html");
-});
 
 app.post("/api/register-user", async (req, resp) => {
-    const { firstName, lastName, email, password } = req.body;
-    const passwordHash = bcrypt.hash(password);
-    const user = await db.createuser({
-        firstName,
-        lastName,
-        email,
-        passwordHash,
-    });
-    return resp.json(user);
+    try {
+        const { firstName, lastName, email, password } = req.body;
+        const passwordHash = bcrypt.hash(password);
+        const user = await db.createuser({
+            firstName,
+            lastName,
+            email,
+            passwordHash,
+        });
+        req.session.userId = user.id;
+        return resp.json(user);
+    } catch(error){
+        resp.status(500).send(error);
+    }
 });
 
 app.post("/api/login", async (req, resp) => {
@@ -60,6 +64,26 @@ app.post("/api/login", async (req, resp) => {
         resp.statusMessage = `user with email ${email} does not exist or password doesn't match`;
         return resp.status(404);
     }
+});
+
+app.get("/api/users/:id", async (req, resp)=> {
+    try {
+        const user = await db.readUser(req.params.id);
+        if (user){
+            user.passwordHash = undefined; // client doens't need hash
+            return resp.json(user);
+        } else {
+            return resp.status(404).send("user not found");
+        }
+    } catch(error){
+        console.error("could not load user with id "+ req.params.id, error);
+        throw error;
+    }
+    
+});
+
+app.get("*", function (req, res) {
+    res.sendFile(__dirname + "/index.html");
 });
 
 app.listen(8080, function () {

@@ -19,17 +19,21 @@ export default class Register extends React.Component {
             !this.state.email ||
             !this.state.password
         ) {
+            console.log("something wrong", this.state)
             return this.setState({ error: true });
         } else {
             console.log("everything clean!");
             try {
-                const response = await axios.post("/api/register", {
+                const response = await axios.post("/api/register-user", {
                     firstName: this.state.firstName,
                     lastName: this.state.lastName,
                     email: this.state.email,
                     password: this.state.password,
                 });
-                location.replace("/");
+                console.log(response.data);
+                this.state.user = response.data;
+                window.localStorage.setItem("userId", this.state.user.id);
+                history.pushState("/");
             } catch (error) {
                 console.log("error registering user", error);
                 this.setState({ error: true });
@@ -44,14 +48,14 @@ export default class Register extends React.Component {
                     <div className="error">Something went wrong.</div>
                 )}
                 <input
-                    name="firstname"
+                    name="firstName"
                     type="text"
                     placeholder="First Name"
                     onChange={(event) => this.handleChange(event)}
                 />
                 <br />
                 <input
-                    name="lastname"
+                    name="lastName"
                     type="text"
                     placeholder="Last Name"
                     onChange={(event) => this.handleChange(event)}

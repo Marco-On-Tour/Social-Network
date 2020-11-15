@@ -9,17 +9,30 @@ function mapRowToUser(row, mapHash = false) {
         lastName: row.last_name,
         email: row.email,
     };
+    if (mapHash) {
+        user.passwordHash = row.password_hash;
+    }
+    return user;
 }
 
-/** @returns {Promise<{id:int, firstName:string, lastName:string, email:string, passwordHash?: string}>} */
-exports.createuser = (user) => {
-    const result = db.query(
-        `INSERT INTO users (first_name, last_name, email, password_hash) 
-         VALUES ($1,$2,$3,$4) 
-         returning id, first_name, last_name, email, password_hash;`,
-        [user.firstName, user.lastName, user.email, user.password_hash]
-    );
-    return mapRowToUser(result.rows[0]);
+/**
+ *@returns {Promise<{id:int, firstName:string, lastName:string, email:string, passwordHash?: string}>} 
+ * 
+ **/
+exports.createuser = async (user) => {
+    try {
+        const result = await db.query(
+            `INSERT INTO users (first_name, last_name, email, password_hash) 
+            VALUES ($1,$2,$3,$4) 
+            returning id, first_name, last_name, email, password_hash;`,
+            [user.firstName, user.lastName, user.email, user.passwordHash]
+        );
+        const data = mapRowToUser(result.rows[0]);
+        return data;
+    } catch(error) {
+        console.error("could not save user", error);
+        throw error;
+    }
 };
 
 /** @returns {Promise<{id:int, firstName:string, lastName:string, email:string, passwordHash?: string}>} */
