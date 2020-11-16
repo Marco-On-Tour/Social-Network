@@ -57,12 +57,27 @@ app.post("/api/register-user", async (req, resp) => {
 app.post("/api/login", async (req, resp) => {
     const { email, password } = req.body;
     const user = await db.readByEmail(email);
-    if (user && bcrypt.compare(password, user.passwordHash)) {
-        req.session.userId = user.id;
-        return resp.json(user);
+    try {
+        if (user && bcrypt.compare(password, user.passwordHash)) {
+            req.session.userId = user.id;
+            return resp.json(user);
+        } else {
+            resp.statusMessage = `user with email ${email} does not exist or password doesn't match`;
+            return resp.status(404);
+        }
+    } catch(error) {
+        console.error(error);
+        throw(error);
+    }
+});
+
+app.get("/api/users/me", async (req, resp)=>{
+    if (req.user){
+        const user = resp.json(req.user);
+        user.passwordHash = undefined;
+        return user;
     } else {
-        resp.statusMessage = `user with email ${email} does not exist or password doesn't match`;
-        return resp.status(404);
+        return resp.status(404).send("user not found");
     }
 });
 

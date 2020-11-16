@@ -37,7 +37,7 @@ exports.createuser = async (user) => {
 
 /** @returns {Promise<{id:int, firstName:string, lastName:string, email:string, passwordHash?: string}>} */
 exports.readByEmail = async (email) => {
-    const result = db.query("SELECT * FROM users WHERE email = $1", [email]);
+    const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
     if (result.rows.length === 1) {
         return mapRowToUser(result.rows[0], true);
     } else {

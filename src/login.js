@@ -4,12 +4,25 @@ import axios from "axios";
 
 export default class Login extends React.Component {
     constructor(){
+        super();
         this.state = {
             email:null,
             password:null
         }
     }
     
+    async login() {
+        console.log("loggin in");
+        console.log([this.state.email, this.state.password]);
+        if (this.state.email && this.state.password) {
+            const result = await axios.post("/api/login", {
+                email: this.state.email,
+                password: this.state.password
+            });
+            window.location = "/";
+        }
+    }
+
     handleChange(event) {
         this.setState({
             [event.target.name]: event.target.value,
@@ -24,6 +37,7 @@ export default class Login extends React.Component {
                 <br />
                 <input name="password" placeholder="password" type="password" onChange={(e) => this.handleChange(e)} />
                 <br />
+                <button onClick={(e) => this.login()}>Login</button>
             </div>
         );
     }
