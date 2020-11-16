@@ -5,6 +5,7 @@ const compression = require('compression');
 const cookieSession = require("cookie-session");
 
 app.use(express.json());
+app.use(express.static('./mystaticfolder'))
 
 app.use(cookieSession({
     secret: "I don't have a secret",
@@ -12,14 +13,13 @@ app.use(cookieSession({
 }));
 
 app.use((request, response, next) => {
-    console.log("🍟", request.session);
+    console.log("🃏", request.session);
     next();
 });
 
 app.use(compression());
 
-const apiRoutes = require("./api-routes.js");
-app.use(apiRoutes);
+
 
 if (process.env.NODE_ENV != 'production') {
     app.use(
