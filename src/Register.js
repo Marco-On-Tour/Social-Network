@@ -1,5 +1,6 @@
 import React from "react";
 import axios from "./axios";
+import ReactDOM from 'react-dom';
 import { Link } from "react-router-dom";
 
 export default class Register extends React.Component {
@@ -57,7 +58,7 @@ export default class Register extends React.Component {
                     <div className="error">Something went wrong.</div>
                 )}
 
-                <label for="firstname">First name</label>
+                <label htmlFor="firstname">First name</label>
                 <input
                     name="firstname"
                     id="firstname"
@@ -65,7 +66,7 @@ export default class Register extends React.Component {
                     onChange={(event) => this.handleChange(event)}
                 />
                 <br />
-                <label for="lastname">Last name</label>
+                <label htmlFor="lastname">Last name</label>
                 <input
                     name="lastname"
                     id="lastname"
@@ -73,7 +74,7 @@ export default class Register extends React.Component {
                     onChange={(event) => this.handleChange(event)}
                 />
                 <br />
-                <label for="email">Email</label>
+                <label htmlFor="email">Email</label>
                 <input
                     name="email"
                     id="email"
@@ -81,7 +82,7 @@ export default class Register extends React.Component {
                     onChange={(event) => this.handleChange(event)}
                 />
                 <br />
-                <label for="password">Password</label>
+                <label htmlFor="password">Password</label>
                 <input
                     name="password"
                     id="password"

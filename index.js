@@ -3,21 +3,38 @@ const express = require('express');
 const app = express();
 const compression = require('compression');
 const cookieSession = require("cookie-session");
+const csurf = require("csurf");
 
+const apiRoutes = require("./api-routes.js");
+
+//middleware:
+app.use(compression());
 app.use(express.json());
-app.use(express.static('./mystaticfolder'))
+app.use("/public", express.static("./public"))
+
 
 app.use(cookieSession({
     secret: "I don't have a secret",
     maxAge: 1000 *60 *60 * 24 * 31
 }));
 
+app.use(csurf());
 app.use((request, response, next) => {
-    console.log("🃏", request.session);
+    response.cookie("mytoken", request.csrfToken());
     next();
 });
 
-app.use(compression());
+app.use((request, response, next) => {
+    console.log("🃏", request.url, request.session);
+    next();
+});
+
+//app.use(compression());
+
+//const apiRoutes = require("./api-routes.js");
+app.use(apiRoutes);
+
+
 
 
 
@@ -31,6 +48,7 @@ if (process.env.NODE_ENV != 'production') {
 } else {
     app.use('/bundle.js', (req, res) => res.sendFile(`${__dirname}/bundle.js`));
 }
+
 
 
 app.get("/welcome", (request, response) => {

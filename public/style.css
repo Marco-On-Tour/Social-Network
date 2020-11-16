@@ -1,0 +1,40 @@
+* {
+    background-color: lightpink;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+body {
+    background: crimson;
+    font-family: 'Courier New', Courier, monospace;
+}
+
+main {
+    background: rgb(45, 87, 124);
+    box-shadow: 5px 10px 10px rgba(70,130,180,0.3);
+    width: 80%;
+    max-width: 600px;
+    margin: 100px auto;
+    padding: 20px;
+    border-top: 5px solid rgb(45, 49, 53);
+
+}
+
+h1 {
+    font-size: 40px;
+}
+
+#Register {
+    border-left: 5px solid seagreen;
+    padding-left: 60px;
+}
+
+#welcome {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    width: 60%;
+    color: crimson;
+}

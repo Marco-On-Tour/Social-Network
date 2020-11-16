@@ -1,28 +1,31 @@
 import React from "react";
-import axios from "./axios";
 import ReactDOM from 'react-dom';
-import { Link } from "react-router-dom";
+import { HashRouter, Route } from "react-router-dom";
+
 import Register from "./Register.js";
 
-ReactDOM.render(
-    <HelloWorld />,
-    document.querySelector('main')
-);
+let userIsLoggedIn = location.pathname != '/welcome';
+
+let componentToRender = <Welcome />;
+if(userIsLoggedIn) {
+    componentToRender = (<div>Nice to have you back.</div>);
+}
+ReactDOM.render(componentToRender, document.querySelector("main"));
 
 function Welcome() {
     return (
-        <div>
+        <div id="welcome">
+            <header>
             
-            
-            <h1>Finance Bros</h1>
+            <h1>FinTank</h1>
 
+            </header>
             <HashRouter>
-                            <Route path="/login" component={Login} />
                             <Route path="/" exact component={Register} />
                         </HashRouter>
 
         <footer>
-            Copyright by Finance Bros
+            Copyright by FinTank
         </footer>
 
         </div>

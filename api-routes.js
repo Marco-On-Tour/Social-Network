@@ -7,9 +7,9 @@ router.post("/api/register", (req, res) => {
     const { firstname, lastname, email, password } = req.body;
 
     passwords
-        .saltAndHash(password)
+        .hash(password)
         .then((password_hash) =>
-            db.createUser(firstname, lastname, email, password_hash)
+            db.addUser(firstname, lastname, email, password_hash)
         )
         .then((newUser) => {
             req.session.userId = newUser.id;
