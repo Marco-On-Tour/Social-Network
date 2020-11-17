@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { HashRouter, Route } from "react-router-dom";
 
 import Register from "./Register.js";
+import Login from "./Login.js";
 
 let userIsLoggedIn = location.pathname != '/welcome';
 
@@ -14,15 +15,17 @@ ReactDOM.render(componentToRender, document.querySelector("main"));
 
 function Welcome() {
     return (
-        <div id="welcome">
+        <div id= "welcome">
             <header>
             
             <h1>FinTank</h1>
 
             </header>
             <HashRouter>
-                            <Route path="/" exact component={Register} />
-                        </HashRouter>
+                <Route path="/" exact component={Register} />
+                <Route path="/login" component={Login} />
+                
+            </HashRouter>
 
         <footer>
             Copyright by FinTank

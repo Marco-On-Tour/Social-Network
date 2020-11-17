@@ -1,6 +1,6 @@
 import React from "react";
+import ReactDOM from "react-dom";
 import axios from "./axios";
-import ReactDOM from 'react-dom';
 import { Link } from "react-router-dom";
 
 export default class Register extends React.Component {

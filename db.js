@@ -9,3 +9,21 @@ exports.addUser = (firstname, lastname, email, password_hash) => {
         [firstname, lastname, email, password_hash]
     ).then(response => response.rows[0]);
 };
+
+exports.getUserByEmail = (email) =>
+    db
+        .query("SELECT * FROM users WHERE email = $1;", [email])
+        .then(({ rows }) => rows[0]);
+
+exports.getUserById = (id) =>
+    db
+        .query("SELECT * FROM users WHERE id = $1;", [id])
+        .then(({ rows }) => rows[0]);
+
+exports.updateUserProfilePicture = (userId, picturePath) =>
+    db
+        .query(
+            "UPDATE users SET profile_picture_url=$1 WHERE id=$2 RETURNING *;",
+            [picturePath, userId]
+        )
+        .then(({ rows }) => rows[0]);
