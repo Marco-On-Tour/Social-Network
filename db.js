@@ -27,3 +27,27 @@ exports.updateUserProfilePicture = (userId, picturePath) =>
             [picturePath, userId]
         )
         .then(({ rows }) => rows[0]);
+
+// reset password with secretcode
+exports.addSecretCode = (userId, secretCode) => {
+    return db.query (
+        "INSERT INTO passwordreset (id, code) VALUES($1, $2) RETURNING*;",
+        [userId, secretCode]
+    ).then(({ rows }) => rows[0]);
+}
+
+//retrieve secret code
+exports.getUserSecretCode = () => {
+    return db.query (
+        `SELECT * FROM passwordreset 
+        WHERE code - created_at < INTERVAL '10 minutes';`
+    ).then(({ rows }) => rows[0]);
+}
+
+//update password
+exports.updateUserPassword = (userId, password_hash) => {
+    return db.query (
+        "UPDATE users SET password_hash = $1 WHERE id = $2;",
+        [password_hash, userId]
+    )
+}

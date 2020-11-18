@@ -3,6 +3,10 @@ const router = new express.Router();
 const passwords = require("./passwords.js");
 const db = require("./db.js");
 const { request, response } = require("express");
+const cryptoRandomString = require('crypto-random-string');
+const secretCode = cryptoRandomString({
+    length: 6
+});
 
 
 //adding new user
@@ -61,6 +65,45 @@ router.post("/api/login", (req, res) => {
             error: "Account does not exist or incorrect password",
         });
     });
+});
+
+//password reset
+
+router.post("/api/reset-password", (req, res) => {
+    const {email, newPassword, secretCode} = req.body;
+    db.getUserByEmail(email)
+    .then((user) => {
+        if(!user) {
+            return res.json({
+                error: "Does not exist",
+                success: false
+            });
+        }
+
+        db.getUsersSecretCode()
+        .then((result) => {
+            if(result.secretcode == code) {
+                passwords
+                .hash
+                .then((password_hash) => {
+                    const userId = user.id;
+                    dbupdateUserPassword(id, password_hash)
+                    .then(() => {
+                        return res.json({
+                            success: true
+                        });
+                    })
+                })
+            } else {
+                return response.json({
+                    error: "Incorrect code",
+                    success: false
+                });
+            }
+        });
+    });
+
+    
 });
 
 module.exports = router;
