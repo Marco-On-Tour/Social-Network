@@ -102,6 +102,7 @@ app.post("/api/reset-password", async (req, resp) => {
     if (email) {
         const random = cryptoRandomString({ length: 6 });
         await db.resetPassword(email, random);
+        console.log("created password reset secret " + random);
         return resp.sendStatus(200);
     } else {
         return resp.status(400).send("missing email");
