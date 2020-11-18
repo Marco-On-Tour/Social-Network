@@ -97,15 +97,28 @@ app.get("/api/users/:id", async (req, resp) => {
     }
 });
 
-app.post("/api/reset-password", async (req, resp) => {
+app.post("/api/request-password-reset", async (req, resp) => {
     const { email } = req.body;
     if (email) {
         const random = cryptoRandomString({ length: 6 });
-        await db.resetPassword(email, random);
+        await db.resetPasswordRequest(email, random);
         console.log("created password reset secret " + random);
         return resp.sendStatus(200);
     } else {
         return resp.status(400).send("missing email");
+    }
+});
+
+app.post("/api/reset-password", async (req, resp) => {
+    try {
+        const { email, token, newPassword } = req.body;
+        const newHash = bcrypt.hash(newPassword);
+        let user = await db.resetPassword(email, token, newHash);
+        req.session.userId = user.id;
+        return resp.sendStatus(200);
+    } catch (error) {
+        console.error(error);
+        return resp.status(400).send(error);
     }
 });
 

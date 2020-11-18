@@ -8,6 +8,7 @@ export default class PasswordReset extends React.Component {
         this.state = {
             email: null,
             secret: null,
+            newPassword: null,
         };
     }
 
@@ -24,6 +25,15 @@ export default class PasswordReset extends React.Component {
                     name="secret"
                     placeholder="reset code"
                     onChange={(e) => this.setState({ secret: e.target.value })}
+                />
+                <br />
+                <input
+                    type="password"
+                    name="newPassword"
+                    placeholder="new password"
+                    onChange={(e) =>
+                        this.setState({ newPassword: e.target.value })
+                    }
                 />
             </div>
         );
