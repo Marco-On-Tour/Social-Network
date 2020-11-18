@@ -6,6 +6,8 @@ const { decodeBase64 } = require("bcryptjs");
 const db = require("./server/db");
 const cookieSession = require("cookie-session");
 const bodyParser = require("body-parser");
+const cryptoRandomString = require("crypto-random-string");
+
 app.use(compression());
 app.use(
     cookieSession({
@@ -36,7 +38,6 @@ app.use(async (req, res, next) => {
     }
 });
 
-
 app.post("/api/register-user", async (req, resp) => {
     try {
         const { firstName, lastName, email, password } = req.body;
@@ -49,7 +50,7 @@ app.post("/api/register-user", async (req, resp) => {
         });
         req.session.userId = user.id;
         return resp.json(user);
-    } catch(error){
+    } catch (error) {
         resp.status(500).send(error);
     }
 });
@@ -65,14 +66,14 @@ app.post("/api/login", async (req, resp) => {
             resp.statusMessage = `user with email ${email} does not exist or password doesn't match`;
             return resp.status(404);
         }
-    } catch(error) {
+    } catch (error) {
         console.error(error);
-        throw(error);
+        throw error;
     }
 });
 
-app.get("/api/users/me", async (req, resp)=>{
-    if (req.user){
+app.get("/api/users/me", async (req, resp) => {
+    if (req.user) {
         const user = resp.json(req.user);
         user.passwordHash = undefined;
         return user;
@@ -81,20 +82,30 @@ app.get("/api/users/me", async (req, resp)=>{
     }
 });
 
-app.get("/api/users/:id", async (req, resp)=> {
+app.get("/api/users/:id", async (req, resp) => {
     try {
         const user = await db.readUser(req.params.id);
-        if (user){
+        if (user) {
             user.passwordHash = undefined; // client doens't need hash
             return resp.json(user);
         } else {
             return resp.status(404).send("user not found");
         }
-    } catch(error){
-        console.error("could not load user with id "+ req.params.id, error);
+    } catch (error) {
+        console.error("could not load user with id " + req.params.id, error);
         throw error;
     }
-    
+});
+
+app.post("/api/reset-password", async (req, resp) => {
+    const { email } = req.body;
+    if (email) {
+        const random = cryptoRandomString({ length: 6 });
+        await db.resetPassword(email, random);
+        return resp.sendStatus(200);
+    } else {
+        return resp.status(400).send("missing email");
+    }
 });
 
 app.get("*", function (req, res) {

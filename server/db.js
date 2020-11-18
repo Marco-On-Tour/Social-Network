@@ -9,6 +9,9 @@ function mapRowToUser(row, mapHash = false) {
         lastName: row.last_name,
         email: row.email,
     };
+    if (row.password_reset_token) {
+        user.passwordResetToken = row.password_reset_token;
+    }
     if (mapHash) {
         user.passwordHash = row.password_hash;
     }
@@ -16,8 +19,8 @@ function mapRowToUser(row, mapHash = false) {
 }
 
 /**
- *@returns {Promise<{id:int, firstName:string, lastName:string, email:string, passwordHash?: string}>} 
- * 
+ *@returns {Promise<{id:int, firstName:string, lastName:string, email:string, passwordHash?: string}>}
+ *
  **/
 exports.createuser = async (user) => {
     try {
@@ -29,7 +32,7 @@ exports.createuser = async (user) => {
         );
         const data = mapRowToUser(result.rows[0]);
         return data;
-    } catch(error) {
+    } catch (error) {
         console.error("could not save user", error);
         throw error;
     }
@@ -37,7 +40,9 @@ exports.createuser = async (user) => {
 
 /** @returns {Promise<{id:int, firstName:string, lastName:string, email:string, passwordHash?: string}>} */
 exports.readByEmail = async (email) => {
-    const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
+    const result = await db.query("SELECT * FROM users WHERE email = $1", [
+        email,
+    ]);
     if (result.rows.length === 1) {
         return mapRowToUser(result.rows[0], true);
     } else {
@@ -54,5 +59,15 @@ exports.readUser = async (userId) => {
         return mapRowToUser(result.rows[0], true);
     } else {
         return null;
+    }
+};
+
+exports.resetPassword = async (email, random) => {
+    const result = await db.quey(
+        "UPDATE users SET password_reset_token = $1 WHERE email = $2 returning *;",
+        [email, random]
+    );
+    if (result.rows.length > 0) {
+        return mapRowToUser(result.rows[0]);
     }
 };
