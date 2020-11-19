@@ -62,6 +62,17 @@ exports.readUser = async (userId) => {
     }
 };
 
+exports.readUserByMail = async (email) => {
+    const result = await db.query("SELECT * FROM users WHERE email = $1;", [
+        email,
+    ]);
+    if (result.rows.length === 1) {
+        return mapRowToUser(result.rows[0], true);
+    } else {
+        return null;
+    }
+};
+
 exports.resetPasswordRequest = async (email, random) => {
     const result = await db.query(
         "UPDATE users SET password_reset_token = $1 WHERE email = $2 returning *;",
@@ -72,14 +83,17 @@ exports.resetPasswordRequest = async (email, random) => {
     }
 };
 
-exports.resetPassword = function(email, token, newPasswordHash){
-    const result = await db.query(`
+exports.resetPassword = async (email, token, newPasswordHash) => {
+    const result = await db.query(
+        `
         UPDATE users SET password_hash = $1
         where email = $2 and password_reset_token = $3
-        returning *`, [newPasswordHash, email, token]);
-    if (result.rows.length > 0){
+        returning *`,
+        [newPasswordHash, email, token]
+    );
+    if (result.rows.length > 0) {
         return mapRowToUser(result.rows[0]);
     } else {
         throw `user with email ${email} does not exist or secret token ${token} does not match`;
     }
-}
+};

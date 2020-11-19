@@ -3,8 +3,10 @@ import ReactDOM from "react-dom";
 import axios from "axios";
 
 export default class PasswordReset extends React.Component {
-    constructor() {
-        super();
+    /**
+     */
+    constructor(props) {
+        super(props);
         this.state = {
             email: null,
             secret: null,
@@ -12,9 +14,19 @@ export default class PasswordReset extends React.Component {
         };
     }
 
+    isFormComplete() {
+        return Boolean(this.state.email && this.state.secret);
+    }
+
+    async resetPassword() {
+        const result = await axios.post("/api/reset-password", this.state);
+        this.props.onPasswordChanged(result.data);
+    }
+
     render() {
         return (
             <div className="reset-form">
+                <p>Reset your password</p>
                 <input
                     name="email"
                     placeholder="email"
@@ -35,6 +47,8 @@ export default class PasswordReset extends React.Component {
                         this.setState({ newPassword: e.target.value })
                     }
                 />
+                <br />
+                <button disabled={!this.isFormComplete()}>Submit</button>
             </div>
         );
     }

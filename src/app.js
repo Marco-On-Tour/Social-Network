@@ -4,6 +4,8 @@ import axios from "axios";
 import Register from "./register";
 import { BrowserRouter as Router, Link, Route } from "react-router-dom";
 import Login from "./login";
+import PasswordResetRequest from "./password-reset-request";
+import PasswordReset from "./password-reset";
 
 export default class App extends React.Component {
     constructor() {
@@ -14,6 +16,7 @@ export default class App extends React.Component {
             modalOpen: false,
         };
     }
+
     async componentDidMount() {
         console.log("componentDidMount");
         await this.loadUser();
@@ -28,32 +31,37 @@ export default class App extends React.Component {
                 user: result.data,
             });
         } catch (error) {
-            console.log(error);
+            const { data, status } = error.response;
+            if (status != 404) {
+                console.log(error.response);
+            }
         }
-        // if (userId){
-        //     try{
-        //         const result = await axios.get("/api/users/" + userId);
-        //         console.log(result.data);
-        //         this.setState({
-        //             user:result.data
-        //         });
-        //     } catch(error){
-        //         console.error("could not load user data", error);
-        //         this.state.error = "could not load user data";
-        //     }
-        // }
     }
 
     render() {
         return (
             <Router>
                 <div>
-                    <Route path="/login" component={Login} />
-                    <Route exact path="/">
+                    <Route path="/login">
+                        <Login />
+                        <p>
+                            Forgot your password?{" "}
+                            <Link to="/password-reset-request">
+                                Reset it here
+                            </Link>
+                        </p>
+                    </Route>
+                    <Route exact path="/register">
                         <Register />
                         <p>
                             Got an account? <Link to="/login">login</Link>
                         </p>
+                    </Route>
+                    <Route exact path="/password-reset">
+                        <PasswordResetRequest />
+                    </Route>
+                    <Route exact path="/password-reset-request">
+                        <PasswordReset />
                     </Route>
                 </div>
             </Router>

@@ -19,7 +19,7 @@ export default class Register extends React.Component {
             !this.state.email ||
             !this.state.password
         ) {
-            console.log("something wrong", this.state)
+            console.log("something wrong", this.state);
             return this.setState({ error: true });
         } else {
             console.log("everything clean!");
@@ -33,7 +33,7 @@ export default class Register extends React.Component {
                 console.log(response.data);
                 this.state.user = response.data;
                 window.localStorage.setItem("userId", this.state.user.id);
-                history.pushState("/");
+                window.location = "/";
             } catch (error) {
                 console.log("error registering user", error);
                 this.setState({ error: true });
