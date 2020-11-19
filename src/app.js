@@ -20,6 +20,9 @@ export default class App extends React.Component {
     async componentDidMount() {
         console.log("componentDidMount");
         await this.loadUser();
+        if (!this.state.user) {
+            window.location = "/login";
+        }
     }
 
     async loadUser() {
@@ -33,7 +36,7 @@ export default class App extends React.Component {
         } catch (error) {
             const { data, status } = error.response;
             if (status != 404) {
-                console.log(error.response);
+                console.error(error);
             }
         }
     }
@@ -41,7 +44,7 @@ export default class App extends React.Component {
     render() {
         return (
             <Router>
-                <div>
+                <div id="app">
                     <Route path="/login">
                         <Login />
                         <p>

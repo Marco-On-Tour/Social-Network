@@ -26,7 +26,7 @@ export default class PasswordReset extends React.Component {
     render() {
         return (
             <div className="reset-form">
-                <p>Reset your password</p>
+                <h3>Reset your password</h3>
                 <input
                     name="email"
                     placeholder="email"

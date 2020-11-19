@@ -12,8 +12,7 @@ import App from "./app";
 // // let userIsLoggedIn = false;
 // // if (if(localStorage)){
 // //     userIsLoggedIn = true;
-// // } 
-
+// // }
 
 // // Version 1
 // let componentToRender = <Welcome />;
@@ -30,5 +29,5 @@ import App from "./app";
 //         </div>
 //     );
 // }
-var app = <App/>;
+var app = <App />;
 ReactDOM.render(app, document.querySelector("main"));
