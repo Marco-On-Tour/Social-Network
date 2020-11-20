@@ -72,7 +72,7 @@ exports.resetPasswordRequest = async (email, random) => {
     }
 };
 
-exports.resetPassword = function(email, token, newPasswordHash){
+exports.resetPassword = async function(email, token, newPasswordHash){
     const result = await db.query(`
         UPDATE users SET password_hash = $1
         where email = $2 and password_reset_token = $3

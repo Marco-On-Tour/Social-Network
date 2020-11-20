@@ -7,7 +7,8 @@ export default class Login extends React.Component {
         super();
         this.state = {
             email:null,
-            password:null
+            password:null,
+            reset:false
         }
     }
     
@@ -19,7 +20,7 @@ export default class Login extends React.Component {
                 email: this.state.email,
                 password: this.state.password
             });
-            window.location = "/";
+            this.props.onLogin({user: result.data});
         }
     }
 

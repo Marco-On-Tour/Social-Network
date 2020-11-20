@@ -30,25 +30,19 @@ export default class App extends React.Component {
         } catch (error) {
             console.log(error);
         }
-        // if (userId){
-        //     try{
-        //         const result = await axios.get("/api/users/" + userId);
-        //         console.log(result.data);
-        //         this.setState({
-        //             user:result.data
-        //         });
-        //     } catch(error){
-        //         console.error("could not load user data", error);
-        //         this.state.error = "could not load user data";
-        //     }
-        // }
+    }
+
+    onUserLoaded(user) {
+        this.setState({user:user});
     }
 
     render() {
         return (
             <Router>
                 <div>
-                    <Route path="/login" component={Login} />
+                    <Route path="/login">
+                        <Login onUserLoaded={event => this.onUserLoaded(event.user)} />
+                    </Route>
                     <Route exact path="/">
                         <Register />
                         <p>
