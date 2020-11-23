@@ -79,7 +79,7 @@ export default class Login extends React.Component {
                 <p>Would you like to register?{""}
                 <Link to="/"> Register</Link>.
                 </p>
-                <p>Forgot password? <Link to="/reset-password">Reset password</Link>.
+                <p>Forgot password? <Link to="/PasswordReset">Reset password</Link>.
                 </p>
             </div>
         );

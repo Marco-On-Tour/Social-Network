@@ -8,6 +8,8 @@ const secretCode = cryptoRandomString({
     length: 6
 });
 
+const ses = require("./ses.js");
+
 
 //adding new user
 
@@ -67,9 +69,36 @@ router.post("/api/login", (req, res) => {
     });
 });
 
+//validation code routing
+router.post("/api/reset/start", (req, res) => {
+    const { email } = req.body;
+
+    db.getUserByEmail(email)
+    .then((user) => {
+        console.log("user", user);
+        if(!user) {
+            console.log("No such user")
+            return res.json({
+                error: "No such user", 
+                success: false
+            });
+        }
+            const userId = user.id;
+            console.log("secret-code", secretCode);
+            db.addSecretCode(userId, secretCode)
+            .then((result) => {
+                console.log("secret key", result);
+                ses.send(email, secretCode);
+                return res.json({
+                    success: true
+                });
+            });
+    });
+});
+
 //password reset
 
-router.post("/api/reset-password", (req, res) => {
+router.post("/api/reset/password", (req, res) => {
     const {email, newPassword, secretCode} = req.body;
     db.getUserByEmail(email)
     .then((user) => {
@@ -105,5 +134,54 @@ router.post("/api/reset-password", (req, res) => {
 
     
 });
+
+//profile picture
+
+router.post("/api/fileupload", uploader.single('file'), (req, res) => {
+
+    if(!req.session.userId) {
+        console.log("User is not logged in");
+        return res.json({
+            error: "User is not logged in."
+        });
+    }
+
+    console.log("req.file", req.file);
+    const newProfilePic = `/user-pics/${req.file.filename}`;
+    const userId = req.session.userId;
+    db.uploadUserProfilePicture(userId, newProfilePic)
+    .then(updatedUser => {
+        console.log("pro pic", updatedUser);
+        return res.json({
+            success: true,
+            updatedUser,
+        });
+    })
+    .catch((e) => {
+        console.log(e);
+        res.json({
+            success: false,
+            error:
+                "Upload did not work.",
+        });
+    });
+});
+
+//update bio
+
+router.post("/api/updatebio", (req, res) => {
+
+    const userId = req.session.userId;
+    const {editedBio} = req.body;
+
+     db.updateUserBio(userId, bioEdit)
+    .then(updatedUser => {
+        return res.json({
+            success: true,
+            updatedUser,
+        });
+    }) 
+});
+
 
 module.exports = router;

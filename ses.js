@@ -1,4 +1,4 @@
-import { addSecretCode } from "./db.js";
+
 
 const aws = require("aws-sdk");
 
@@ -16,11 +16,11 @@ const ses = new aws.SES({
 });
 
 
-export function send(recipient, subject, messageBody) {
+exports.send = (email, secretCode) => {
     return ses.sendEmail({
         Source: "marconewman@icloud.com",
         Destination: {
-            ToAddresses: [recipient]
+            ToAddresses: [email]
         },
         Message: {
             Subject: {

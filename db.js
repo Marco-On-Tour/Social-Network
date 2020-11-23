@@ -20,11 +20,13 @@ exports.getUserById = (id) =>
         .query("SELECT * FROM users WHERE id = $1;", [id])
         .then(({ rows }) => rows[0]);
 
-exports.updateUserProfilePicture = (userId, picturePath) =>
+
+//profile picture uploader
+exports.updateUserProfilePicture = (userId, profilePic) =>
     db
         .query(
-            "UPDATE users SET profile_picture_url=$1 WHERE id=$2 RETURNING *;",
-            [picturePath, userId]
+            "UPDATE users SET profile_pic = $1 WHERE id=$2 RETURNING *;",
+            [profilePic, userId]
         )
         .then(({ rows }) => rows[0]);
 
@@ -50,4 +52,12 @@ exports.updateUserPassword = (userId, password_hash) => {
         "UPDATE users SET password_hash = $1 WHERE id = $2;",
         [password_hash, userId]
     )
+}
+
+//update bio
+exports.updateUserBio = (userId, bioEdit) => {
+    return db.query (
+        "UPDATE users SET bio = $1 WHERE id = $2 RETURNING*;",
+        [bioEdit, userId]
+    ).then(({ rows }) => rows[0]);
 }

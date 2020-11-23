@@ -3,7 +3,7 @@ import axios from "./axios";
 import { Link } from "react-router-dom";
 
 
-export default class Reset extends React.Component {
+export default class resetPassword extends React.Component {
     constructor(props) {
       super(props);
       this.state = {
@@ -21,23 +21,59 @@ export default class Reset extends React.Component {
     }
 
     sendCode() {
+    
+
+        if (
+            !this.state.email
+        ) {
+            return this.setState({ error: true });
+        }
+
         axios
-        .post("/reset/start", {
+        .post("/api/reset/start", {
             email: this.state.email
         })
-        .then(({  data }) => {
-            this.setState({ step: 2});
+        .then((res) => {
+            
+            if (
+                res.data.success = true) 
+                {
+                    this.setState({ step: 2 });
+                }
+        })
+        .catch((err) => {
+            
+            this.setState({ error: true });
         });
     }
 
     resetPassword() {
+        console.log("resetPassword function was called", this.state, this.state.email);
+
+        if (
+            !this.state.code ||
+            !this.state.new_password
+        ) {
+            return this.setState({ error: true });
+        }
+
         axios
-        .post("/reset/update", {
-            secretCode: this.state.secretCode,
-            newPassword: this.state.newPassword
+        .post("/api/reset/password", {
+            email: this.state.email,
+            code: this.state.code,
+            new_password: this.state.new_password
         })
-        .then(({ data }) => {
-            this.setState({ step: 3 });
+        .then((res) => {
+            
+            if (
+                res.data.success = true) 
+                {
+                    this.setState({ step: 3 });
+                }
+        })
+        .catch((err) => {
+            
+            this.setState({ error: true });
         });
     }
 
@@ -66,11 +102,10 @@ export default class Reset extends React.Component {
                 <div>
                     <h2>Check your incoming emails</h2>
                     <br />
-                    <input type="text" name="code" />
-                    <input type="password" name="new_password" />
-                    <br />
-                    <button onClick={(e) => this.resetPassword()}>
-                        Reset password 
+                    <input onChange={(event) => this.handleChange(event)} type="text" name="code" placeholder="Validation code" />
+                        <input onChange={(event) => this.handleChange(event)} type="password" name="new_password" placeholder="New password" />
+                        <button onClick={(event) => this.resetPassword()}>
+                            Reset password
                         </button>
                 </div>
             );

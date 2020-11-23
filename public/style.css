@@ -1,5 +1,5 @@
 * {
-    background-color: lightpink;
+    background-color: rgb(236, 212, 215);
     margin: 0;
     padding: 0;
     border: 0;
@@ -11,7 +11,7 @@
     flex-direction: column;
     justify-content: center;
     width: 60%;
-    color: crimson;
+    color: rgb(137, 137, 238);
 }
 
 #Register {
@@ -20,13 +20,15 @@
 }
 
 body {
-    background: crimson;
+    background: rgb(96, 146, 221);
+    width: 800px;
+    height: 700px;
     font-family: 'Courier New', Courier, monospace;
 }
 
 main {
     background: rgb(45, 87, 124);
-    box-shadow: 5px 10px 10px rgba(70,130,180,0.3);
+    box-shadow: 5px 5px 5px rgba(70,130,180,0.3);
     width: 80%;
     max-width: 600px;
     margin: 100px auto;
@@ -34,6 +36,9 @@ main {
     border-top: 5px solid rgb(45, 49, 53);
 
 }
+
+
+
 
 
 

@@ -52,6 +52,8 @@ export default class Register extends React.Component {
     render() {
         return (
             <div id="Register">
+
+                <img src="logo_m-06.png" width="500px" height="350px"></img>
                 <h2>Please register</h2>
 
                 {this.state.error && (

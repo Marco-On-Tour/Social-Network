@@ -4,6 +4,7 @@ import { HashRouter, Route } from "react-router-dom";
 
 import Register from "./Register.js";
 import Login from "./Login.js";
+import PasswordReset from './PasswordReset.js';
 
 let userIsLoggedIn = location.pathname != '/welcome';
 
@@ -24,7 +25,7 @@ function Welcome() {
             <HashRouter>
                 <Route path="/" exact component={Register} />
                 <Route path="/login" component={Login} />
-                
+                <Route path="/PasswordReset" component={PasswordReset} />
             </HashRouter>
 
         <footer>
