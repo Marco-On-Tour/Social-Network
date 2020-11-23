@@ -16,9 +16,13 @@ export default class App extends React.Component {
             modalOpen: false,
         };
     }
+
     async componentDidMount() {
         console.log("componentDidMount");
         await this.loadUser();
+        if (!this.state.user) {
+            window.location = "/login";
+        }
     }
 
     async loadUser() {
@@ -30,7 +34,10 @@ export default class App extends React.Component {
                 user: result.data,
             });
         } catch (error) {
-            console.log(error);
+            const { data, status } = error.response;
+            if (status != 404) {
+                console.error(error);
+            }
         }
     }
 
@@ -43,6 +50,7 @@ export default class App extends React.Component {
 
     render() {
         return (
+<<<<<<< HEAD
             <HashRouter hashType="noslash">
                 <div>
                     <Route exact path="/login">
@@ -50,11 +58,26 @@ export default class App extends React.Component {
                         <p>Forgot your password? <Link to="/request-password-reset">Reset it!</Link></p>
                     </Route>
                     <Route path="/register">
+=======
+            <Router>
+                <div id="app">
+                    <Route path="/login">
+                        <Login />
+                        <p>
+                            Forgot your password?{" "}
+                            <Link to="/password-reset-request">
+                                Reset it here
+                            </Link>
+                        </p>
+                    </Route>
+                    <Route exact path="/register">
+>>>>>>> 9fea07cf8d40a89a57d0cb4746652079aa2c0c2b
                         <Register />
                         <p>
                             Got an account? <Link to="/login">login</Link>
                         </p>
                     </Route>
+<<<<<<< HEAD
                     <Route path="/request-password-reset"  onPasswordResetRequested={(e) => window.location = generatePath("reset-password")}>
                         <PasswordResetRequest />
                     </Route>
@@ -64,6 +87,13 @@ export default class App extends React.Component {
                     <Route exact path="/">
                         <Login onLogin={event => this.onUserLoaded(event.user)} />
                         <p>Forgot your password? <Link to="/request-password-reset">Reset it!</Link></p>
+=======
+                    <Route exact path="/password-reset">
+                        <PasswordResetRequest />
+                    </Route>
+                    <Route exact path="/password-reset-request">
+                        <PasswordReset />
+>>>>>>> 9fea07cf8d40a89a57d0cb4746652079aa2c0c2b
                     </Route>
                 </div>
             </HashRouter>

@@ -19,7 +19,7 @@ export default class Register extends React.Component {
             !this.state.email ||
             !this.state.password
         ) {
-            console.log("something wrong", this.state)
+            console.log("something wrong", this.state);
             return this.setState({ error: true });
         } else {
             console.log("everything clean!");
@@ -53,35 +53,30 @@ export default class Register extends React.Component {
                     placeholder="First Name"
                     onChange={(event) => this.handleChange(event)}
                 />
-                <br />
                 <input
                     name="lastName"
                     type="text"
                     placeholder="Last Name"
                     onChange={(event) => this.handleChange(event)}
                 />
-                <br />
                 <input
                     name="email"
                     type="email"
                     placeholder="Email"
                     onChange={(event) => this.handleChange(event)}
                 />
-                <br />
                 <input
                     name="password"
                     type="password"
                     placeholder="Password"
                     onChange={(event) => this.handleChange(event)}
                 />
-                <br />
                 <button
                     id="register-button"
                     onClick={(event) => this.submit(event)}
                 >
                     Register
                 </button>
-                <br />
             </div>
         );
     }
