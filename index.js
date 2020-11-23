@@ -7,6 +7,8 @@ const db = require("./server/db");
 const cookieSession = require("cookie-session");
 const bodyParser = require("body-parser");
 const cryptoRandomString = require("crypto-random-string");
+const multer = require("multer");
+const s3 = require("./server/s3");
 
 app.use(compression());
 app.use(
@@ -28,6 +30,37 @@ if (process.env.NODE_ENV != "production") {
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+const diskStorage = multer.diskStorage({
+    destination: function (req, file, callback) {
+        callback(null, __dirname + "/uploads");
+    },
+    filename: function (req, file, callback) {
+        uidSafe(24).then(function (uid) {
+            callback(null, uid + path.extname(file.originalname));
+        });
+    },
+});
+
+const uploader = multer({
+    storage: diskStorage,
+    limits: {
+        fileSize: 2097152,
+    },
+});
+
+app.use("/api/upload/", uploader.single("file"), s3.upload, async function (req, resp){
+    if(req.file){
+        const filenName = req.file.filename;
+        const { userId } = req.body;
+        let user = await db.readUser(userId)
+        const url = s3.getUrl(filenName);
+        user.profilePic = url;
+        user = await db.updateUser(user);
+        return resp.json(user);
+    }
+});
+
+
 app.use(async (req, res, next) => {
     if (req.session.userId) {
         const user = await db.readUser(req.session.userId);
@@ -38,89 +71,8 @@ app.use(async (req, res, next) => {
     }
 });
 
-app.post("/api/register-user", async (req, resp) => {
-    try {
-        const { firstName, lastName, email, password } = req.body;
-        const passwordHash = bcrypt.hash(password);
-        const user = await db.createuser({
-            firstName,
-            lastName,
-            email,
-            passwordHash,
-        });
-        req.session.userId = user.id;
-        return resp.json(user);
-    } catch (error) {
-        resp.status(500).send(error);
-    }
-});
-
-app.post("/api/login", async (req, resp) => {
-    const { email, password } = req.body;
-    const user = await db.readByEmail(email);
-    try {
-        if (user && bcrypt.compare(password, user.passwordHash)) {
-            req.session.userId = user.id;
-            return resp.json(user);
-        } else {
-            resp.statusMessage = `user with email ${email} does not exist or password doesn't match`;
-            return resp.status(404);
-        }
-    } catch (error) {
-        console.error(error);
-        throw error;
-    }
-});
-
-app.get("/api/users/me", async (req, resp) => {
-    if (req.user) {
-        const user = resp.json(req.user);
-        user.passwordHash = undefined;
-        return user;
-    } else {
-        return resp.status(404).send("user not found");
-    }
-});
-
-app.get("/api/users/:id", async (req, resp) => {
-    try {
-        const user = await db.readUser(req.params.id);
-        if (user) {
-            user.passwordHash = undefined; // client doens't need hash
-            return resp.json(user);
-        } else {
-            return resp.status(404).send("user not found");
-        }
-    } catch (error) {
-        console.error("could not load user with id " + req.params.id, error);
-        throw error;
-    }
-});
-
-app.post("/api/request-password-reset", async (req, resp) => {
-    const { email } = req.body;
-    if (email) {
-        const random = cryptoRandomString({ length: 6 });
-        await db.resetPasswordRequest(email, random);
-        console.log("created password reset secret " + random);
-        return resp.sendStatus(200);
-    } else {
-        return resp.status(400).send("missing email");
-    }
-});
-
-app.post("/api/reset-password", async (req, resp) => {
-    try {
-        const { email, token, newPassword } = req.body;
-        const newHash = bcrypt.hash(newPassword);
-        let user = await db.resetPassword(email, token, newHash);
-        req.session.userId = user.id;
-        return resp.sendStatus(200);
-    } catch (error) {
-        console.error(error);
-        return resp.status(400).send(error);
-    }
-});
+const router = require("./server/user");
+app.use(router);
 
 app.get("*", function (req, res) {
     res.sendFile(__dirname + "/index.html");

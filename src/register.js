@@ -24,7 +24,7 @@ export default class Register extends React.Component {
         } else {
             console.log("everything clean!");
             try {
-                const response = await axios.post("/api/register-user", {
+                const response = await axios.post("/api/users/register-user", {
                     firstName: this.state.firstName,
                     lastName: this.state.lastName,
                     email: this.state.email,
@@ -33,7 +33,7 @@ export default class Register extends React.Component {
                 console.log(response.data);
                 this.state.user = response.data;
                 window.localStorage.setItem("userId", this.state.user.id);
-                history.pushState("/");
+                window.location = "/";
             } catch (error) {
                 console.log("error registering user", error);
                 this.setState({ error: true });

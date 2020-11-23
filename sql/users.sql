@@ -8,3 +8,4 @@ create table  if not exists users (
 );
 -- https://stackoverflow.com/a/38721951
 alter table users add column if not exists password_reset_token varchar;
+alter table users add column if not exists profile_pic varchar;

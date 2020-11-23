@@ -3,13 +3,21 @@ import ReactDOM from "react-dom";
 import axios from "axios";
 
 export default class PasswordReset extends React.Component {
-    constructor() {
-        super();
+    constructor(props) {
+        super(props);
         this.state = {
             email: null,
             secret: null,
             newPassword: null,
         };
+    }
+
+    async resetPassword() {
+        const { email, secret, newPassword } = this.state;
+        const result = await axios.post("/api/users/reset-password", {email, secret,newPassword});
+        if (this.props.onPasswordReset){
+            this.props.onPasswordReset();
+        }
     }
 
     render() {
@@ -22,12 +30,6 @@ export default class PasswordReset extends React.Component {
                 />
                 <br />
                 <input
-                    name="secret"
-                    placeholder="reset code"
-                    onChange={(e) => this.setState({ secret: e.target.value })}
-                />
-                <br />
-                <input
                     type="password"
                     name="newPassword"
                     placeholder="new password"
@@ -35,6 +37,14 @@ export default class PasswordReset extends React.Component {
                         this.setState({ newPassword: e.target.value })
                     }
                 />
+                <br />
+                <input
+                    name="secret"
+                    placeholder="reset code"
+                    onChange={(e) => this.setState({ secret: e.target.value })}
+                />
+                <br />
+                <button onClick={(e) => this.resetPassword()}>Reset</button>
             </div>
         );
     }

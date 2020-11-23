@@ -3,8 +3,8 @@ import ReactDOM from "react-dom";
 import axios from "axios";
 
 export default class Login extends React.Component {
-    constructor(){
-        super();
+    constructor(props){
+        super(props);
         this.state = {
             email:null,
             password:null,
