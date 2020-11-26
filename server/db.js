@@ -20,24 +20,22 @@ function mapRowToUser(row, mapHash = false) {
     return user;
 }
 
-function snakeCaseToCamelCase(obj) {
-    const result = {};
-    for(key in obj){
-        let uppercaseNext = false;
-        let newKey = "";
-        for (let char of key) {
-            if (char === "_") {
-                uppercaseNext = true;
-            } else if (uppercaseNext){
-                newKey += char.toUpperCase();
-                uppercaseNext = false;
-            } else {
-                newKey += char;
-            }
-        }
-        result[newKey] = obj[key];
+exports.listUsers = async (query) => {
+    if (query) {
+        query = query + '%';
+        var result = await db.query(
+            `SELECT * FROM users 
+             WHERE first_name ILIKE $1 
+               OR last_name ILIKE $1
+               OR first_name || ' ' || last_name ILIKE $1;`
+            , [query]
+        );
+    } else {
+        var result = await db.query(
+            `SELECT * FROM USERS ORDER BY id desc LIMIT 20`
+        );
     }
-    return result;
+    return result.rows.map(row => mapRowToUser(row));
 }
 
 /**

@@ -3,6 +3,7 @@ import ReactDOM from "react-dom";
 import axios from "axios";
 import { BrowserRouter as Router, HashRouter, Link, Route, useHistory, generatePath, Redirect, Switch, BrowserRouter } from "react-router-dom";
 import { async } from "crypto-random-string";
+import { useSelector } from "react-redux";
 
 
 export default function App({profile}) {
@@ -10,24 +11,78 @@ export default function App({profile}) {
     const onLogin = (user) => {
         setUser(user);
     };
-    
     return(
         <div className="app">
             <BrowserRouter>
                 <Switch>
-                    <Route exact path="/login" component={() => <Login onLogin={(user) => onLogin(user)}/> }/>
-                    <Route exact path="/register" component={() => <Register onRegister={(user) => onLogin(user)} />} />
-                    <Route exact path="/request-password-reset" component={() => <PasswordResetRequest onResetRequested={history.pushState(null, null, "/")} />} />
-                    <Route path="/profile" component={() => <Profile user={user} />} />
+                    <Route exact path="/login" component={() => 
+                        <Login onLogin={(user) => onLogin(user)}/> }
+                    />
+                    <Route exact path="/register" component={() => 
+                        <Register onRegister={(user) => onLogin(user)} />} 
+                    />
+                    <Route exact path="/request-password-reset" component={() => 
+                        <PasswordResetRequest onResetRequested={history.pushState(null, null, "/")} />} 
+                    />
+                    <Route path="/profile" component={() => 
+                        <Profile user={user} />} 
+                    />
                     <Route path="/users/:id" render={props => (
                         <OtherProfile key={props.match.url} match={props.match} history={props.history} id={props.match.params.id}/>)} 
                     />
+                    <Route exact path="/users" component={()=><Users />} />
                 </Switch>
             </BrowserRouter>
         </div>
     );
 }
     
+function Users({users=[]}) {
+    const [userList, setUserList] = useState(users)
+    const [query, setQuery] = useState()
+    // passing the empty array [] to useEffect as a second parameter
+    // prevents it from being called more than once at initialization.
+    // It seems complicated, it's explained at ^1, but for now I don't 
+    // get the why, just the how
+    // https://reactjs.org/docs/hooks-effect.html#tip-optimizing-performance-by-skipping-effects
+    useEffect(()=> {
+        (async function() {
+            let url = "/api/users";
+            if (query && query.length >= 2){
+                url += "?query=" + query;
+            }
+            const result = await axios.get(url);
+            setUserList(result.data);
+        })();
+    },[query]); 
+
+    const onQueryChange = async (e) => {
+        const queryInput = e.target.value;
+        setQuery(queryInput);
+    }
+    
+    return(
+        <div>
+            <h3>See who's here!</h3>
+            <div className="user-filter">
+                <input type="text" name="query" onChange={onQueryChange} placeholder="search by name"/>
+            </div>
+            <ol className="user-list">
+                {userList.map(user => (
+                    <li key={user.id}>
+                        <img src={user.profilePic} 
+                            alt={`profile pic for ${user.firstName} ${user.lastName}`} />
+                        <div>
+                            <h4>{user.firstName} {user.lastName}</h4>
+                            <p>{user.bio && user.bio.slice(0, 100)} ...</p>
+                        </div>
+                    </li>
+                ))}
+            </ol>
+        </div>
+    )
+}
+
 function OtherProfile(props) {
     const userId = props.id;
     const [firstName, setFirstName] = useState(props.firstName);
@@ -102,48 +157,15 @@ function Profile({user, onProfileUpdated}){
                 <div id="column-right" className="column">
                     <h3>{profile.firstName} {profile.lastName}</h3>
                     <Bio rows={16} cols={72} biography={profile.bio} withEditor={true} onUpdated={onUpdated}/>
+                    <div>
+                        <Link to="/users">Add your friends!</Link>
+                    </div>
                 </div>
             </main>
         </div>
     );
 }
 
-
-function Bio({biography, withEditor, rows, cols, onUpdated}) {
-    const [bio, setBio] = useState(biography);
-    const [switchEditorOn, setSwitchEditorOn] = useState(withEditor && !biography);
-    
-
-    const updateBio = async () => {
-        const url = "/api/users/me/bio";
-        const result = await axios.post("/api/users/me/bio", {
-            bio
-        });
-        setSwitchEditorOn(false);
-        onUpdated(bio);
-    }
-
-    return (
-        <div className="bio"> 
-            <div className="editor" style={{display: switchEditorOn ? "block": "none"}}>
-                <textarea rows={rows} cols={cols} onChange={e => setBio(e.target.value)} value={bio} />
-                <br />
-                <button style={{display:"inline"}} onClick={updateBio}>Save</button>
-                <button style={{display:"inline"}} onClick={() => setSwitchEditorOn(false)}>Cancel</button>
-
-            </div>
-            <div className="text" style={{display: switchEditorOn ? "none" : "block"}}>
-                <div>
-                    {bio}
-                </div>
-                <p>
-                    <a href="#" onClick={() => setSwitchEditorOn(true)}>edit</a>
-                </p>
-            </div>
-        </div>
-
-    )
-}
 function ProfilePic({src, width, height, onClick}) {
     let [url, setUrl] = useState(src);
     let [isModalOpen, setIsModalOpen] = useState(false);
@@ -184,6 +206,43 @@ function ProfilePic({src, width, height, onClick}) {
         </div>
     );
 
+}
+
+
+function Bio({biography, withEditor, rows, cols, onUpdated}) {
+    const [bio, setBio] = useState(biography);
+    const [switchEditorOn, setSwitchEditorOn] = useState(withEditor && !biography);
+    
+
+    const updateBio = async () => {
+        const url = "/api/users/me/bio";
+        const result = await axios.post("/api/users/me/bio", {
+            bio
+        });
+        setSwitchEditorOn(false);
+        onUpdated(bio);
+    }
+
+    return (
+        <div className="bio"> 
+            <div className="editor" style={{display: switchEditorOn ? "block": "none"}}>
+                <textarea rows={rows} cols={cols} onChange={e => setBio(e.target.value)} value={bio} />
+                <br />
+                <button style={{display:"inline"}} onClick={updateBio}>Save</button>
+                <button style={{display:"inline"}} onClick={() => setSwitchEditorOn(false)}>Cancel</button>
+
+            </div>
+            <div className="text" style={{display: switchEditorOn ? "none" : "block"}}>
+                <div>
+                    {bio}
+                </div>
+                <p>
+                    <a href="#" onClick={() => setSwitchEditorOn(true)}>edit</a>
+                </p>
+            </div>
+        </div>
+
+    )
 }
 
 function PictureUploader({onPicUploaded}) {

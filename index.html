@@ -68,6 +68,30 @@
                 margin-left: 1em;
             }
 
+            .user-list {
+                list-style-type: none;
+                padding-left: 0;
+            }
+            .user-list li {
+                display: flex;
+                flex-flow: row;
+                margin-bottom: 1em;
+            }
+            .user-list img {
+                width: 128px;
+                display: block;
+                max-height: 128px;
+                /* profile pics are not square and not really centered, 
+                   without object-fit and object-position they will be 
+                   stretched and not centered on the head*/
+                object-fit: cover;
+                object-position: 0% 10%; 
+            }
+            .user-list li > * {
+                margin-left:1em;
+                margin-top:0;
+            }
+            
         </style>
     </head>
     <body>

@@ -6,10 +6,21 @@ const db = require("./db");
 // const cookieSession = require("cookie-session");
 // const bodyParser = require("body-parser");
 const cryptoRandomString = require("crypto-random-string");
+const { json } = require("body-parser");
 
 const router = express.Router()
 module.exports = router;
 
+router.get("/api/users", async (req,resp) => {
+    try {
+        const {query} = req.query;
+        const result = await db.listUsers(query);
+        return resp.json(result);
+    } catch(error) {
+        console.error(error);
+        return resp.sendStatus(500);
+    }
+});
 
 router.post("/api/users/register-user", async (req, resp) => {
     try {
