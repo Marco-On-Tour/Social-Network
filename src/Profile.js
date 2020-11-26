@@ -2,9 +2,9 @@ import React from "react";
 import ReactDOM from 'react-dom';
 import axios from "./axios.js";
 import { Link } from 'react-router-dom';
-import ProfilePic from './ProfilePicture.js';
 import BioEditor from './BioEditor.js';
-
+import ProfilePic from "./ProfilePicture.js";
+import FindUsers from "./FindPeople.js";
 
 export default class Profile extends React.Component {
 
@@ -15,24 +15,32 @@ export default class Profile extends React.Component {
 
     render() {
 
-        if(!this.state.user) {
-            return (<div>Not ready yet</div>);
+        if(!this.props.user) {
+            return (<div>Wow, sexy</div>);
         }
 
-        const {firstname, lastname, profile_pic, bio} = this.props.user;   
-        
+        const {firstname, lastname, email, profile_pic, bio} = this.props.user;   
+        const {openPopup, bioEditDone} = this.props;
 
         return (
             <div id="profile">
-                <ProfilePicture
-                ProfilePic= {profile_pic}
 
-                Firstname= {firstname}
-                Lastname= {lastname}
-                bio= {bio}
-            />
-            </div>
-        )
+                        <div>Your Financial profile</div> 
+                        <div>Firstname: {firstname}</div>
+                        <div>Lastname: {lastname}</div>
+                        <div>Email: {email}</div> 
 
-        }
-    }
+                        <BioEditor 
+                            userBio={bio}
+                            bioEditDone={bioEditDone}
+                        />
+
+                        <ProfilePic
+                            profilePicLarge={profile_pic} 
+                            openPopup={openPopup}
+                        />
+                        
+                </div>
+            );
+    }   
+}

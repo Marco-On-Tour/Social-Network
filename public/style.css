@@ -37,8 +37,124 @@ main {
 
 }
 
+button {
+    color: rgb(145, 64, 64);
+    padding: 14px 20px;
+    margin-top: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+button:hover {
+    background: rgb(87, 104, 117);
+    box-shadow: 1px 3px 5px rgba(16, 56, 88, 0.6);
+    color: rgb(255, 255, 255);
+    padding: 10px 15px;
+}
+
+.BioEditor {
+    display: block;
+}
+
+.BioEditor textarea {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #eee;
+    border: 0px;
+    border-radius: 3px;
+    min-width: 50%;
+    display: block;
+    height: 150px;
+    padding: 10px;
+}
 
 
+#bio-editor {
+    border-left: 5px solid seagreen;
+    padding-left: 60px;
+    width: 80%;
+    max-width: 600px;
+}
+
+#profile {
+    border-left: 5px solid seagreen;
+    padding-left: 60px;
+    width: 80%;
+    max-width: 600px;
+}
+
+#proPic {
+    border-left: 5px solid seagreen;
+    padding-left: 60px;
+}
+
+#Profile #ProfilePic, #OtherProfile #ProfilePic #friends #MyFriends {
+    width: 150px;
+    height: 150px;
+    position: inherit;
+    border-radius: 3px;
+    margin-right: 10px;
+    flex-grow: 0;
+}
+
+#pwreset {
+    border-left: 5px solid seagreen;
+    padding-left: 60px;
+    width: 80%;
+    max-width: 600px;
+}
+
+#app {
+    border-left: 5px solid seagreen;
+    padding-left: 60px;
+    width: 80%;
+    max-width: 600px;
+}
+
+#otherprofile {
+    border-left: 5px solid seagreen;
+    border-top: 5px solid seagreen;
+    border-bottom: 5px solid seagreen;
+    border-right: 5px solid seagreen;
+    padding-left: 60px;
+    width: 80%;
+    max-width: 600px;
+}
+
+#pic-uploader {
+    border-left: 5px solid seagreen;
+    padding-left: 60px;
+    width: 80%;
+    max-width: 600px;
+}
+
+#find-users {
+    border-left: 5px solid seagreen;
+    padding-left: 60px;
+    width: 80%;
+    max-width: 600px;
+}
+
+#messages {
+    background: rgb(236, 212, 215);
+    border-left: 5px solid seagreen;
+    padding-left: 60px;
+    width: 80%;
+    max-width: 600px;
+    overflow: scroll;
+    height: 50vh;
+}
+
+#ProfilePicture {
+    width: 150px;
+    height: 150px;
+    position: inherit;
+    border-radius: 3px;
+    margin-right: 10px;
+    flex-grow: 0;
+}
 
 
-
+#Profile, #OtherProfile {
+    display: flex;
+    margin-top: 30px;
+}

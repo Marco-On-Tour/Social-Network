@@ -1,5 +1,6 @@
 import React from "react";
-import axios from "./axios";
+import ReactDOM from 'react-dom';
+import axios from "./axios.js";
 import { Link } from "react-router-dom";
 
 export default class Login extends React.Component {
@@ -17,70 +18,53 @@ export default class Login extends React.Component {
     }
 
     submit(event) {
-        // Validation
-        // If one of the fields is empty: Show error message.
-        if (
-            !this.state.email ||
-            !this.state.password
-        ) {
+        if (!this.state.email || !this.state.password) {
             return this.setState({ error: true });
         }
 
         axios
-        .post("/api/login", {
-            email: this.state.email,
-            password: this.state.password,
-        })
-        .then((response) => {
-            console.log("IT WORKED!");
-            console.log("response came in", response);
+            .post("/api/login", {
+                email: this.state.email,
+                password: this.state.password,
+            })
+            .then((res) => {
+                console.log("response axios post request login", res);
 
-            location.replace("/");
-        })
-        .catch((error) => {
-            console.log("Error registering user", error);
-            this.setState({ error: true });
-        })
+                if (
+                    res.data.success = true) 
+                    {
+                        location.replace("/");
+                    }
+
+            })
+            .catch((err) => {
+                console.log("Error logging in user", err);
+                this.setState({ error: true });
+            });
     }
 
     render() {
         return (
-            <div id="Login">
-            <h2>Please login</h2>
+            <div id="login">
+                
+                {this.state.error && (<div className="error">Please fill out all fields.</div>)}
 
-            {this.state.error && (
-                    <div className="error">Something went wrong.</div>
-                )}
-
-                <label htmlFor="email">Email</label>
-                <input
-                    name="email"
-                    id="email"
-                    type="email"
-                    onChange={(event) => this.handleChange(event)}
-                />
-                <br />
-                <label htmlFor="password">Password</label>
-                <input
-                    name="password"
-                    id="password"
-                    type="password"
-                    onChange={(event) => this.handleChange(event)}
-                />
-                <br />
-
-                <button
-                    id="login-button"
-                    onClick={(event) => this.submit(event)}
-                >
-                    Login
-                </button>
-
-                <p>Would you like to register?{""}
-                <Link to="/"> Register</Link>.
-                </p>
-                <p>Forgot password? <Link to="/PasswordReset">Reset password</Link>.
-                </p>
+                <div>
+                    <input onChange={(event) => this.handleChange(event)} name="email" type="email" placeholder="Email"></input>
+                </div>
+                <div>
+                    <input onChange={(event) => this.handleChange(event)} name="password" type="password" placeholder="Password"></input>
+                </div>
+                <button onClick={(event) => this.submit(event)}>Login</button> 
+                <div>
+                    Not registered yet? <Link to="/">Register here.</Link>
+                </div>
+                <div>
+                    Forgot your password? <Link to="/reset/password">Reset password here.</Link>
+                </div>
+                <div>
+                     <Link to="/app">Edit profile.</Link>
+                </div>
             </div>
         );
     }

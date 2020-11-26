@@ -1,7 +1,7 @@
 
 import React from "react";
 import { Link } from "react-router-dom";
-import axios from "../axios.js";
+import axios from "./axios.js";
 
 export default class BioEditor extends React.Component {
 
@@ -22,7 +22,7 @@ export default class BioEditor extends React.Component {
     BioUpdate(event) {
 
         axios
-            .post("/api/updateBio", {
+            .post("/api/updatebio", {
                 bioEdit: this.state.bioeditor
             })
             .then((res) => {

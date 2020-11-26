@@ -1,6 +1,7 @@
 import React from "react";
 import axios from "./axios";
 import { Link } from "react-router-dom";
+import { EventListeners } from "aws-sdk";
 
 
 export default class resetPassword extends React.Component {
@@ -80,7 +81,7 @@ export default class resetPassword extends React.Component {
     render() {
         if (this.state.step === 1) {
             return (
-                <div>
+                <div id="pwreset">
                     <h2>Reset your password here</h2>
                     <br />
                     <input
@@ -99,7 +100,7 @@ export default class resetPassword extends React.Component {
 
         if (this.state.step === 2) {
             return (
-                <div>
+                <div id="pwreset">
                     <h2>Check your incoming emails</h2>
                     <br />
                     <input onChange={(event) => this.handleChange(event)} type="text" name="code" placeholder="Validation code" />
@@ -114,7 +115,7 @@ export default class resetPassword extends React.Component {
 
         if (this.state.step === 3) {
             return (
-                <div>
+                <div id="pwreset">
                     <p>Your password has succesfully been changed</p>
                     <Link to="/Login">Click here to login</Link>
                 </div>
