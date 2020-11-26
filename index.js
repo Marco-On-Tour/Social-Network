@@ -22,7 +22,7 @@ app.use(
 );
 if (process.env.NODE_ENV != "production") {
     app.use(
-        "/bundle.js",
+        ["/bundle.js","/bundle.js.map"],
         require("http-proxy-middleware")({
             target: "http://localhost:8081/",
         })
