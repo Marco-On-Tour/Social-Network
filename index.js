@@ -9,6 +9,9 @@ const bodyParser = require("body-parser");
 const cryptoRandomString = require("crypto-random-string");
 const multer = require("multer");
 const s3 = require("./server/s3");
+const userRouter = require("./server/user");
+const uidSafe = require("uid-safe");
+const path = require("path");
 
 app.use(compression());
 app.use(
@@ -30,6 +33,20 @@ if (process.env.NODE_ENV != "production") {
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 
+app.use(async (req, res, next) => {
+    try {
+        if (req.session.userId) {
+            const user = await db.readUser(req.session.userId);
+            req.user = user;
+            return next();
+        } else {
+            return next();
+        }
+    } catch(error) {
+        console.log(error);
+    }
+});
+
 const diskStorage = multer.diskStorage({
     destination: function (req, file, callback) {
         callback(null, __dirname + "/uploads");
@@ -50,30 +67,33 @@ const uploader = multer({
 
 app.use("/api/upload/", uploader.single("file"), s3.upload, async function (req, resp){
     if(req.file){
-        const filenName = req.file.filename;
-        const { userId } = req.body;
-        let user = await db.readUser(userId)
-        const url = s3.getUrl(filenName);
-        user.profilePic = url;
-        user = await db.updateUser(user);
-        return resp.json(user);
+        try {
+            const filenName = req.file.filename;
+            let user = req.user;
+            const url = s3.getUrl(filenName);
+            user.profilePic = url;
+            user = await db.updateUser(user);
+            return resp.json(user);
+        } catch(error) {
+            console.error(error);
+            return resp.sendStatus(500);
+        }
     }
 });
 
 
-app.use(async (req, res, next) => {
-    if (req.session.userId) {
-        const user = await db.readUser(req.session.userId);
-        req.user = user;
-        return next();
-    } else {
-        return next();
+
+app.use(userRouter);
+ 
+app.get("/", (req,resp) => {
+    if (req.url == "/") {
+        if (!req.user){
+            return resp.redirect("/login")
+        } else {
+            return resp.redirect("/profile")
+        }
     }
 });
-
-const router = require("./server/user");
-app.use(router);
-
 app.get("*", function (req, res) {
     res.sendFile(__dirname + "/index.html");
 });

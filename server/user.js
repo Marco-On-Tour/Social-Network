@@ -36,12 +36,11 @@ router.post("/api/users/login", async (req, resp) => {
             req.session.userId = user.id;
             return resp.json(user);
         } else {
-            resp.statusMessage = `user with email ${email} does not exist or password doesn't match`;
-            return resp.status(404);
+            resp.status(404).send(`user with email ${email} does not exist or password doesn't match`);
         }
     } catch (error) {
         console.error(error);
-        throw error;
+        return resp.sendStatus(500);
     }
 });
 
@@ -66,19 +65,24 @@ router.get("/api/users/:id", async (req, resp) => {
         }
     } catch (error) {
         console.error("could not load user with id " + req.params.id, error);
-        throw error;
+        return resp.sendStatus(500);
     }
 });
 
 router.post("/api/users/request-password-reset", async (req, resp) => {
     const { email } = req.body;
-    if (email) {
-        const random = cryptoRandomString({ length: 6 });
-        await db.resetPasswordRequest(email, random);
-        console.log("created password reset secret " + random);
-        return resp.sendStatus(200);
-    } else {
-        return resp.status(400).send("missing email");
+    try{
+        if (email) {
+            const random = cryptoRandomString({ length: 6 });
+            await db.resetPasswordRequest(email, random);
+            console.log("created password reset secret " + random);
+            return resp.sendStatus(200);
+        } else {
+            return resp.status(400).send("missing email");
+        }
+    } catch(error){
+        console.error(error);
+        return resp.sendStatus(500);
     }
 });
 
@@ -96,9 +100,27 @@ router.post("/api/users/reset-password", async (req, resp) => {
 });
 
 router.post("/api/users/profile-pic", async (req,resp) => {
-    const { userId, url } = req.body;
-    const user = await db.readUser(userId);
-    user.profilePic = url;
-    await db.updateUser(user);
-    return  resp.sendStatus(200);
+    try {
+        const { userId, url } = req.body;
+        const user = await db.readUser(userId);
+        user.profilePic = url;
+        await db.updateUser(user);
+        return  resp.sendStatus(200);
+    } catch(error) {
+        console.error(error);
+        return resp.sendStatus(500);
+    }
+});
+
+router.post("/api/users/me/bio", async (req, resp) => {
+   try {
+       let user = req.user;
+       const {bio} = req.body;
+       user.bio = bio;
+       user = await db.updateUser(user);
+       return resp.json(user);
+   } catch(error) {
+       console.error(error);
+       return resp.sendStatus(500);
+   }
 });

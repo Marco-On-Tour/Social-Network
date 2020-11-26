@@ -10,26 +10,70 @@
                 display: flex;
                 justify-content: center;
             }
+            header.loggedIn {
+                display: flex;
+                flex-direction: row;
+                justify-content: space-between;
+            }
             main {
                 display: flex;
-                justify-content: center;
+                flex-direction: column;
+                align-items: center;
             }
-            input {
+
+            main.profile {
+                display: flex;
+                flex-direction: row;
+                align-items: start;
+            }
+
+            input, button {
                 display: block;
                 margin: 2px;
             }
+            .modal {
+                display: none;
+                position: fixed;
+                z-index: 1;
+                left: 0;
+                right: 0;
+                width: 100%;
+                height: 100%;
+                overflow: auto;
+                background-color: rgba(0,0,0,0.4); /* Black w/ opacity */
+            }
+            .modal-content {
+                background-color: #fefefe;
+                margin: 15% auto; 
+                padding: 20px;
+                border: 1px solid #888;
+                width: 80%; 
+            }
+            header .profilePic {
+                max-width: 75px;
+            }
+            main .profilePic {
+                max-width: 225px;
+            }
+
+            .column {
+                display: flex;
+                flex-direction: column;
+            }
+            #column-left {
+                max-width: 400px;
+                min-width: 225px;
+            }
+            #column-right {
+                margin-left: 1em;
+            }
+
         </style>
     </head>
     <body>
-        <header>
-            <div class="img-wrapper">
-                <img
-                    src="https://via.placeholder.com/640x200?text=logo"
-                    alt="logo"
-                />
-            </div>
-        </header>
-        <main></main>
+        <div id="app">
+
+        </div>
         <script src="/bundle.js"></script>
     </body>
 </html>

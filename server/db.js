@@ -8,7 +8,8 @@ function mapRowToUser(row, mapHash = false) {
         firstName: row.first_name,
         lastName: row.last_name,
         email: row.email,
-        profilePic: row.profile_pic
+        profilePic: row.profile_pic,
+        bio: row.bio
     };
     if (row.password_reset_token) {
         user.passwordResetToken = row.password_reset_token;
@@ -104,14 +105,8 @@ exports.resetPasswordRequest = async (email, random) => {
     }
 };
 
-<<<<<<< HEAD
 exports.resetPassword = async function(email, token, newPasswordHash){
     const result = await db.query(`
-=======
-exports.resetPassword = async (email, token, newPasswordHash) => {
-    const result = await db.query(
-        `
->>>>>>> 9fea07cf8d40a89a57d0cb4746652079aa2c0c2b
         UPDATE users SET password_hash = $1
         where email = $2 and password_reset_token = $3
         returning *`,
@@ -122,7 +117,6 @@ exports.resetPassword = async (email, token, newPasswordHash) => {
     } else {
         throw `user with email ${email} does not exist or secret token ${token} does not match`;
     }
-<<<<<<< HEAD
 }
 
 exports.updateUser = async function(user) {
@@ -131,15 +125,13 @@ exports.updateUser = async function(user) {
         SET email = $1,
             first_name = $2,
             last_name  = $3,
-            profile_pic = $4
-        WHERE email = $1
-    `, [user.email, user.firstName, user.lastName, user.profilePic]);
+            profile_pic = $4,
+            bio = $5
+        WHERE email = $1 returning *;
+    `, [user.email, user.firstName, user.lastName, user.profilePic, user.bio]);
     if (result.rows.length > 0) {
         return mapRowToUser(result.rows[0]);
     } else {
         throw `user with email ${user.email} does not exist`;
     }
 }
-=======
-};
->>>>>>> 9fea07cf8d40a89a57d0cb4746652079aa2c0c2b

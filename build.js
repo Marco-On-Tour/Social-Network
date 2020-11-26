@@ -6,6 +6,7 @@ const conf = {
         path: __dirname,
         filename: 'bundle.js'
     },
+    // devtool: "source-map",
     performance: {
         hints: false
     },
