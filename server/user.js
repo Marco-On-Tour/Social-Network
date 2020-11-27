@@ -58,7 +58,10 @@ router.post("/api/users/login", async (req, resp) => {
 router.get("/api/users/me", async (req, resp) => {
     if (req.user) {
         const user = resp.json(req.user);
+         /* make really, really sure that hash doesn't leak out*/
         user.passwordHash = undefined;
+        const friends = await db.readFriendships(req.user.id);
+        user.friends = friends;
         return user;
     } else {
         return resp.status(404).send("user not found");
@@ -69,6 +72,7 @@ router.get("/api/users/:id", async (req, resp) => {
     try {
         const user = await db.readUser(req.params.id);
         if (user) {
+            /* make really, really sure that hash doesn't leak out*/
             user.passwordHash = undefined; // client doens't need hash
             return resp.json(user);
         } else {
@@ -135,3 +139,42 @@ router.post("/api/users/me/bio", async (req, resp) => {
        return resp.sendStatus(500);
    }
 });
+
+router.get("/api/users/me/friends", async (req, resp) => {
+    const friends = await db.readFriendships(req.user.id);
+    return resp.json(friends);
+});
+
+router.post("/api/users/me/friends/:friendId", async (req,resp) => {
+    await db.createFriendship(req.user.id, req.params.friendId);
+    resp.json(await db.readFriendships(req.user.id));
+});
+
+router.delete("/api/users/me/friends/:friendId", async (req,resp) => {
+    await db.deleteFriendship(req.user.id, req.params.friendId);
+    resp.json(await db.readFriendships(req.user.id));
+});
+
+router.get("/api/users/friends-status/:friendId", async (req,resp) => {
+    try {
+        const myId = req.user.id;
+        const friendId = Number(req.params.friendId);
+        const myFriends = await db.readFriendships(myId);
+        const theirFriends = await db.readFriendships(friendId);
+        const isMyFriend = myFriends.some((f) => f.id === friendId);
+        const amTheirFriend = theirFriends.some((f) => f.id === myId);
+
+        if (isMyFriend && amTheirFriend) {
+            return resp.json("MUTUAL_FRIENDSHIP");
+        } else if (isMyFriend && !amTheirFriend) {
+            return resp.json("FRIENDSHIP_REQUESTED_BY_ME");
+        } else if (!isMyFriend && amTheirFriend) {
+            return resp.json("FRIENDHIP_REQUESTED_BY_THEM");
+        } else {
+            return resp.json("NO_FRIENDSHIP");
+        }
+    } catch (error) {
+        console.error(error);
+        return resp.sendStatus(500);
+    }
+})

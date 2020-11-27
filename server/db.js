@@ -133,3 +133,30 @@ exports.updateUser = async function(user) {
         throw `user with email ${user.email} does not exist`;
     }
 }
+
+exports.readFriendships = async function(userId) {
+    const result = await db.query(`
+        SELECT user_to.*, mutual.from_id as is_mutual
+        FROM friendships f
+        inner join users user_from on f.from_id = user_from.id
+        inner join users user_to on f.to_id = user_to.id
+        left outer join friendships mutual on (mutual.from_id = f.to_id) AND (mutual.to_id = f.from_id)
+        WHERE f.from_id = $1
+    `, [userId]);
+    let friendships = [];
+    for (let row of result.rows) {
+        const friendship = mapRowToUser(row);
+        friendship.accepted = Boolean(row.is_mutual)
+        friendships.push(friendship);
+    }
+    return friendships;
+}
+
+exports.createFriendship = async function (userId, toUserId) {
+    const result = await db.query(`INSERT INTO friendships (from_id, to_id) VALUES ($1, $2) ON CONFLICT DO NOTHING;`, [userId, toUserId]);
+    return await exports.readFriendships(userId);
+}
+
+exports.deleteFriendship = async function (userId, toUserId) {
+    await db.query(`DELETE FROM friendships WHERE from_id = $1 and to_id = $2`, [userId, toUserId]);
+}

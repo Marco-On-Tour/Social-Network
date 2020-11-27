@@ -2,9 +2,10 @@ import React, { useEffect, useState } from "react";
 import ReactDOM from "react-dom";
 import axios from "axios";
 import { BrowserRouter as Router, HashRouter, Link, Route, useHistory, generatePath, Redirect, Switch, BrowserRouter } from "react-router-dom";
+import { actionTypes, reducer} from "./reducer";
+import { useDispatch, useSelector } from "react-redux";
 import { async } from "crypto-random-string";
-import { useSelector } from "react-redux";
-
+import { loadFriends } from "./actions";
 
 export default function App({profile}) {
     let [user, setUser] = useState(profile);
@@ -31,10 +32,71 @@ export default function App({profile}) {
                         <OtherProfile key={props.match.url} match={props.match} history={props.history} id={props.match.params.id}/>)} 
                     />
                     <Route exact path="/users" component={()=><Users />} />
+                    <Route exact path="/friends" component={() => <Friends />} />
                 </Switch>
             </BrowserRouter>
         </div>
     );
+}
+
+function Friends() {
+    const dispatch = useDispatch();
+    useEffect(() => {
+        dispatch(loadFriends());
+    }, []);
+
+    const incomingRequests = useSelector((state) => {
+        if (state.friends) {
+            return state.friends.filter((f) => !f.accepted);
+        }
+    });
+
+    const mutuals = useSelector((state) => {
+        if (state.friends){
+            return state.friends.filter((f) => f.accepted);
+        }
+    })
+
+    function incomingFriends() {
+        if (incomingRequests && incomingRequests.length > 0) {
+            return (
+                <div className="incoming-friends">
+                    <h3>These people want to be your friends</h3>
+                    {incomingRequests.map((f) =>(
+                        <div key={f.id}>
+                            lol
+                        </div>   
+                    ))}
+                </div>  
+            );
+        }
+    }
+
+    function mutualFriends() {
+        if (mutuals && mutuals.length > 0) {
+            return (
+                <div className="mutual-friends">
+                    <h3>These people are your friends</h3>
+                    { mutuals.map((f) =>(
+                        <div key={f.id}>
+                            <img src={f.profilePic} />
+                        </div>   
+                    ))}
+                </div>  
+            );
+        }
+    }
+    
+    return (
+        <div id="friends">
+            { incomingFriends() }
+            { mutualFriends() }
+        </div>
+    );
+}
+
+function IncomingFriendRequest() {
+
 }
     
 function Users({users=[]}) {
@@ -70,8 +132,10 @@ function Users({users=[]}) {
             <ol className="user-list">
                 {userList.map(user => (
                     <li key={user.id}>
-                        <img src={user.profilePic} 
-                            alt={`profile pic for ${user.firstName} ${user.lastName}`} />
+                        <Link style={{ display:"block" }} to={"/users/" + user.id}>
+                            <img src={user.profilePic} 
+                                alt={`profile pic for ${user.firstName} ${user.lastName}`} />
+                        </Link>
                         <div>
                             <h4>{user.firstName} {user.lastName}</h4>
                             <p>{user.bio && user.bio.slice(0, 100)} ...</p>
@@ -81,6 +145,45 @@ function Users({users=[]}) {
             </ol>
         </div>
     )
+}
+
+function FriendButton({userId, onFriendshipAdded}) {
+
+    const [status, setStatus] = useState("NO_FRIENDSHIP");
+    useEffect(() => {
+        (async function(){
+            const url = "/api/users/friends-status/:friendId".replace(":friendId", userId);
+            console.log(url);
+            const response = await axios.get(url);
+            const status = response.data;
+            setStatus(status);
+        })();
+    },[])
+
+    const request = async () => {
+        const url = "/api/users/me/friends/:friendId".replace(":friendId", userId);
+        const response = await axios.post(url);
+        setStatus("FRIENDSHIP_REQUESTED_BY_ME");
+    }
+
+    const unfriend = async() => {
+        const url = "/api/users/me/friends/:friendId".replace(":friendId", userId);
+        const response = await axios.post(url);
+        setStatus("FRIENDHIP_REQUESTED_BY_THEM");
+    };
+
+    switch (status) {
+        case "MUTUAL_FRIENDSHIP": 
+            return <button onClick={() => unfriend()}>Unfriend</button>
+        case "FRIENDSHIP_REQUESTED_BY_ME":
+            return <button onClick={() => unfriend()}>Withdraw Request</button>
+        case "FRIENDHIP_REQUESTED_BY_THEM":
+            return <button onClick={() => accept()}>Accept Request</button>
+        case "NO_FRIENDSHIP":
+            return <button onClick={() => request()}>Request Friendship</button>
+
+    }
+
 }
 
 function OtherProfile(props) {
@@ -94,11 +197,10 @@ function OtherProfile(props) {
         (async function(){
             const url = "/api/users/" + userId;
             const result = await axios.get(url);
-            console.log(result.data);
             setFirstName(result.data.firstName);
             setLastName(result.data.lastName);
             setBio(result.data.bio);
-            setProfilePic(result.data.profilePic)
+            setProfilePic(result.data.profilePic);
         })();
     },[]);
 
@@ -119,7 +221,9 @@ function OtherProfile(props) {
                     <h4>My Picture</h4>
                     <div className="profile-pic-container">
                         <img className="profilePic" src={profilePic || "https://via.placeholder.com/200x200?text=profile"} /> 
-                    </div>                </div>
+                    </div>
+                    <FriendButton userId={userId} />
+                </div>
                 <div id="column-right" className="column">
                     <h3>{firstName} {lastName}</h3>
                     <p>
