@@ -194,7 +194,7 @@ function OtherProfile(props) {
     const [lastName, setLastName] = useState(props.lastName);
     const [profilePic, setProfilePic] = useState(props.setProfilePic);
     const [bio, setBio] = useState(props.bio);
-
+    const [email, setEmail] = useState(props.email);
     useEffect(()=>{
         (async function(){
             const url = "/api/users/" + userId;
@@ -203,14 +203,24 @@ function OtherProfile(props) {
             setLastName(result.data.lastName);
             setBio(result.data.bio);
             setProfilePic(result.data.profilePic);
+            setEmail(result.data.email);
         })();
     },[]);
 
     return (
         <div>
             <header className="loggedIn">
-                <div id="logo-small">
+            <div id="logo-small">
                     <img src="https://via.placeholder.com/100x100?text=logo" alt="small logo" />
+                </div>
+                <div>
+                    <Link to="/api/users/logout">Log out</Link>
+                </div>
+                <div>
+                    <Link to="/users">Find users</Link>
+                </div>
+                <div>
+                    <Link to="/friends">my friends</Link>
                 </div>
                 <div id="profilePic-small">
                     <div className="profile-pic-container">
@@ -220,7 +230,7 @@ function OtherProfile(props) {
             </header>
             <main className="profile">
                 <div id="column-left" className="column">
-                    <h4>My Picture</h4>
+                    <h4>{firstName}'s picture</h4>
                     <div className="profile-pic-container">
                         <img className="profilePic" src={profilePic || "https://via.placeholder.com/200x200?text=profile"} /> 
                     </div>
@@ -231,6 +241,7 @@ function OtherProfile(props) {
                     <p>
                         {bio}
                     </p>
+                    <p>{email}</p>
                 </div>
             </main>
         </div>
@@ -250,6 +261,15 @@ function Profile({user, onProfileUpdated}){
             <header className="loggedIn">
                 <div id="logo-small">
                     <img src="https://via.placeholder.com/100x100?text=logo" alt="small logo" />
+                </div>
+                <div>
+                    <Link to="/api/users/logout">Log out</Link>
+                </div>
+                <div>
+                    <Link to="/users">Find users</Link>
+                </div>
+                <div>
+                    <Link to="/friends">my friends</Link>
                 </div>
                 <div id="profilePic-small">
                     <ProfilePic width="100" src={profile.profilePic} onClick={(e) => switchModal()}  />
