@@ -8,9 +8,11 @@ import { async } from "crypto-random-string";
 import { loadFriends } from "./actions";
 
 export default function App({profile}) {
+    const history = useHistory();
     let [user, setUser] = useState(profile);
     const onLogin = (user) => {
         setUser(user);
+        window.location = "/profile";
     };
     return(
         <div className="app">
@@ -22,9 +24,12 @@ export default function App({profile}) {
                     <Route exact path="/register" component={() => 
                         <Register onRegister={(user) => onLogin(user)} />} 
                     />
-                    <Route exact path="/request-password-reset" component={() => 
-                        <PasswordResetRequest onResetRequested={history.pushState(null, null, "/")} />} 
+                    <Route exact path="/request-password-reset" component={ () => 
+                        <PasswordResetRequest onResetRequested={() => window.location = generatePath("/password-reset")} />} 
                     />
+                    <Route exact path="/password-reset" component={ () => 
+                        <PasswordReset />
+                    } />
                     <Route path="/profile" component={() => 
                         <Profile user={user} />} 
                     />
@@ -95,9 +100,6 @@ function Friends() {
     );
 }
 
-function IncomingFriendRequest() {
-
-}
     
 function Users({users=[]}) {
     const [userList, setUserList] = useState(users)
@@ -391,7 +393,7 @@ function Login({onLogin}) {
             const result = await axios.post("/api/users/login", {email, password});
             onLogin(result.data);
         } catch(error) {
-            console.console.error(error);
+            console.error(error);
         }
     }
     return (
@@ -410,6 +412,8 @@ function Login({onLogin}) {
                 onChange={(e) => setPassword(e.target.value)}
             />
             <button onClick={(e) => login()}>Login</button>
+            <p>Not a member? <Link to="/register">Sign up now!</Link></p>
+            <p>Forgot your password? <Link to="/request-password-reset">Reset it now</Link></p>
         </div>
     );
 }
@@ -480,7 +484,9 @@ function PasswordResetRequest({onResetRequested}) {
     const [email, setEmail] = useState()
     async function requestReset() {
         await axios.post("/api/users/request-password-reset", {email: email});
-        onResetRequested();
+        if (onResetRequested) {
+            onResetRequested();
+        }
     }
     const canSend = () => {
         return Boolean(email);
@@ -495,4 +501,52 @@ function PasswordResetRequest({onResetRequested}) {
             <button disabled={!canSend()} onClick={_ => requestReset()}> Reset!</button>
         </div>
     )
+}
+class PasswordReset extends React.Component {
+    constructor(props) {
+        super(props);
+        this.state = {
+            email: null,
+            secret: null,
+            newPassword: null,
+        };
+    }
+
+    async resetPassword() {
+        const { email, secret, newPassword } = this.state;
+        const result = await axios.post("/api/users/reset-password", {email, secret,newPassword});
+        if (this.props.onPasswordReset){
+            this.props.onPasswordReset();
+        }
+    }
+
+    render() {
+        return (
+            <div className="reset-form">
+                <h3>Reset your password</h3>
+                <input
+                    name="email"
+                    placeholder="email"
+                    onChange={(e) => this.setState({ email: e.target.value })}
+                />
+                <br />
+                <input
+                    type="password"
+                    name="newPassword"
+                    placeholder="new password"
+                    onChange={(e) =>
+                        this.setState({ newPassword: e.target.value })
+                    }
+                />
+                <br />
+                <input
+                    name="secret"
+                    placeholder="reset code"
+                    onChange={(e) => this.setState({ secret: e.target.value })}
+                />
+                <br />
+                <button onClick={(e) => this.resetPassword()}>Reset</button>
+            </div>
+        );
+    }
 }

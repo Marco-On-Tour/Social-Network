@@ -55,6 +55,11 @@ router.post("/api/users/login", async (req, resp) => {
     }
 });
 
+router.get("/api/users/logout", (req, resp) => {
+    req.session = null;
+    return resp.redirect("/"); 
+});
+
 router.get("/api/users/me", async (req, resp) => {
     if (req.user) {
         const user = resp.json(req.user);
